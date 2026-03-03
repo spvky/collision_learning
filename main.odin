@@ -27,7 +27,7 @@ tg := Tab_Group(Editor_Mode) {
 	inactive_color = INACTIVE_TAB_COLOR,
 	font_size      = 24,
 	padding        = 8,
-	margin         = 0,
+	margin         = 4,
 	value_ptr      = &em,
 }
 
@@ -53,7 +53,7 @@ main :: proc() {
 		projected = project_point_onto_triangle_face(sphere, tri)
 		rl.BeginDrawing()
 		rl.ClearBackground(rl.BLACK)
-		draw_tab_group(&tg, {50, 50})
+		draw_ui()
 		rl.BeginMode3D(camera)
 		colliding, pen_normal, pen_depth = sphere_triangle_collision(sphere, tri, false)
 		if pen_normal != {0, 0, 0} {

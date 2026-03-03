@@ -25,8 +25,12 @@ Tab_Group_Layout :: enum {
 	Column,
 }
 
-draw_tab_group :: proc(tg: ^Tab_Group($T), position: [2]i32) {
-	offset := position
+draw_ui :: proc() {
+	tab_offset := draw_tab_group(&tg, {50, 50})
+}
+
+draw_tab_group :: proc(tg: ^Tab_Group($T), position: [2]i32) -> (offset: [2]i32) {
+	offset = position
 	for v in T {
 		s_value := fmt.tprintf("%v", v)
 		s_string := strings.clone_to_cstring(s_value, allocator = context.temp_allocator)
@@ -49,4 +53,5 @@ draw_tab_group :: proc(tg: ^Tab_Group($T), position: [2]i32) {
 			offset += {0, height + tg.margin}
 		}
 	}
+	return
 }
