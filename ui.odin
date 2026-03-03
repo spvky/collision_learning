@@ -25,6 +25,14 @@ Tab_Group_Layout :: enum {
 	Column,
 }
 
+UI_Element :: struct {
+	visible: bool,
+}
+
+Menu_Panel :: struct {
+	using ui: UI_Element,
+}
+
 draw_ui :: proc() {
 	tab_offset := draw_tab_group(&tg, {50, 50})
 }
