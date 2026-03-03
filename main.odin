@@ -13,6 +13,24 @@ Sphere :: distinct [4]f32
 
 Triangle :: distinct [3]Vec3
 
+Editor_Mode :: enum {
+	Point,
+	Edge,
+	Face,
+}
+
+em: Editor_Mode
+
+tg := Tab_Group(Editor_Mode) {
+	font_color     = rl.WHITE,
+	active_color   = ACTIVE_TAB_COLOR,
+	inactive_color = INACTIVE_TAB_COLOR,
+	font_size      = 24,
+	padding        = 8,
+	margin         = 0,
+	value_ptr      = &em,
+}
+
 tri := Triangle{{-5, 0, -1}, {1, 0, -1}, {2, 0, 2}}
 sphere := Sphere{1, 3, 2, 1}
 colliding: bool
@@ -35,6 +53,7 @@ main :: proc() {
 		projected = project_point_onto_triangle_face(sphere, tri)
 		rl.BeginDrawing()
 		rl.ClearBackground(rl.BLACK)
+		draw_tab_group(&tg, {50, 50})
 		rl.BeginMode3D(camera)
 		colliding, pen_normal, pen_depth = sphere_triangle_collision(sphere, tri, false)
 		if pen_normal != {0, 0, 0} {
