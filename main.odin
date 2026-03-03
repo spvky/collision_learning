@@ -1,10 +1,8 @@
 package main
 
 import "core:fmt"
-import "core:log"
 import "core:math"
 import l "core:math/linalg"
-import gc "shared:ghst/collision"
 import rl "vendor:raylib"
 
 camera: rl.Camera3D
