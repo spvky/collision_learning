@@ -33,8 +33,32 @@ Menu_Panel :: struct {
 	using ui: UI_Element,
 }
 
+ui_test :: proc() {
+	if rl.IsKeyPressed(.TAB) {
+		cycle_editor_mode()
+	}
+	rl.BeginDrawing()
+	rl.ClearBackground(rl.BLACK)
+	rl.BeginMode3D(camera)
+	draw_grid(20)
+	draw_ui()
+	rl.EndMode3D()
+	rl.EndDrawing()
+}
+
 draw_ui :: proc() {
 	tab_offset := draw_tab_group(&tg, {50, 50})
+}
+
+cycle_editor_mode :: proc() {
+	switch em {
+	case .Point:
+		em = .Edge
+	case .Edge:
+		em = .Face
+	case .Face:
+		em = .Point
+	}
 }
 
 draw_tab_group :: proc(tg: ^Tab_Group($T), position: [2]i32) -> (offset: [2]i32) {
