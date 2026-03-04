@@ -25,7 +25,7 @@ Editor_Event_Payload :: union {
 Editor_Event_Callback :: proc(event: Editor_Event)
 
 init_editor_event_manager :: proc() {
-	events.event_listeners = make(map[Editor_Event][dynamic]Editor_Event_Callback, 8)
+	events.event_listeners = make(map[Editor_Event_Type][dynamic]Editor_Event_Callback, 8)
 	queue.reserve(&events.event_queue, 16)
 }
 
@@ -65,7 +65,7 @@ Undo_List :: struct {
 }
 
 Undo_Node :: struct {
-	data: Editor_Action,
+	data: Editor_Event,
 	next: ^Undo_Node,
 }
 
@@ -83,14 +83,60 @@ Add_Prefab_Payload :: struct {
 
 add_prefab :: proc(event: Editor_Event) {
 	payload := event.payload.(Add_Prefab_Payload)
+	center := payload.position
+	collision_object: Collision_Object
+	collision_object.center = center
+	collision_object.verts = make([dynamic]Vec3, 0, 8)
+	collision_object.faces = make([dynamic]Collision_Triangle, 0, 12)
+
 	switch payload.prefab_added {
 	case .Cube:
+		verts := [?]Vec3 {
+			// Top Verts
+			{-1, 1, -1},
+			{-1, 1, 1},
+			{1, 1, 1},
+			{1, 1, -1},
+			// Bottom Verts
+			{-1, -1, -1},
+			{-1, -1, 1},
+			{1, -1, 1},
+			{1, -1, -1},
+		}
+
+		faces := [?]Collision_Triangle {
+			// Top
+			{0, 1, 2},
+			{2, 3, 0},
+			// Bottom
+			{7, 6, 5},
+			{5, 4, 7},
+			// Front
+			{0, 3, 7},
+			{7, 4, 0},
+			// Back
+			{5, 6, 2},
+			{2, 1, 5},
+			// Left
+			{5, 1, 0},
+			{0, 4, 5},
+			// Right
+			{7, 3, 2},
+			{2, 6, 7},
+		}
+		append_elems(&collision_object.verts, ..verts[:])
+		append_elems(&collision_object.faces, ..faces[:])
+
 	case .Ramp:
 	case .Tetrahedron:
 	}
+	// inset into dirty objects array
 }
 
+Collision_Triangle :: [3]int
+
 Collision_Object :: struct {
-	verts:   [dynamic]Vec3,
-	indeces: [dynamic]int,
+	center: Vec3,
+	verts:  [dynamic]Vec3,
+	faces:  [dynamic]Collision_Triangle,
 }
