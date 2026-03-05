@@ -46,8 +46,11 @@ main :: proc() {
 		position = {5, 2, -10},
 		up       = {0, 1, 0},
 	}
+	init_collision_objects()
+	init_editor_event_manager()
 
 	for !rl.WindowShouldClose() {
+		rl.UpdateCamera(&camera, .ORBITAL)
 		ui_test()
 	}
 }

@@ -40,9 +40,7 @@ ui_test :: proc() {
 	rl.BeginDrawing()
 	rl.ClearBackground(rl.BLACK)
 	draw_ui()
-	rl.BeginMode3D(camera)
-	draw_grid(20)
-	rl.EndMode3D()
+	draw_scene()
 	rl.EndDrawing()
 }
 

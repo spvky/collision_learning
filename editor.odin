@@ -1,5 +1,9 @@
 package main
 
+import "core:fmt"
+import l "core:math/linalg"
+import rl "vendor:raylib"
+
 import "core:container/queue"
 
 Event_Manager :: struct {
@@ -23,6 +27,7 @@ Editor_Event_Payload :: union {
 }
 
 Editor_Event_Callback :: proc(event: Editor_Event)
+
 
 init_editor_event_manager :: proc() {
 	events.event_listeners = make(map[Editor_Event_Type][dynamic]Editor_Event_Callback, 8)
@@ -83,54 +88,57 @@ Add_Prefab_Payload :: struct {
 
 add_prefab :: proc(event: Editor_Event) {
 	payload := event.payload.(Add_Prefab_Payload)
-	center := payload.position
 	collision_object: Collision_Object
-	collision_object.center = center
-	collision_object.verts = make([dynamic]Vec3, 0, 8)
-	collision_object.faces = make([dynamic]Collision_Triangle, 0, 12)
 
 	switch payload.prefab_added {
 	case .Cube:
-		verts := [?]Vec3 {
-			// Top Verts
-			{-1, 1, -1},
-			{-1, 1, 1},
-			{1, 1, 1},
-			{1, 1, -1},
-			// Bottom Verts
-			{-1, -1, -1},
-			{-1, -1, 1},
-			{1, -1, 1},
-			{1, -1, -1},
-		}
-
-		faces := [?]Collision_Triangle {
-			// Top
-			{0, 1, 2},
-			{2, 3, 0},
-			// Bottom
-			{7, 6, 5},
-			{5, 4, 7},
-			// Front
-			{0, 3, 7},
-			{7, 4, 0},
-			// Back
-			{5, 6, 2},
-			{2, 1, 5},
-			// Left
-			{5, 1, 0},
-			{0, 4, 5},
-			// Right
-			{7, 3, 2},
-			{2, 6, 7},
-		}
-		append_elems(&collision_object.verts, ..verts[:])
-		append_elems(&collision_object.faces, ..faces[:])
-
+		init_cube(&collision_object, payload.position)
 	case .Ramp:
 	case .Tetrahedron:
 	}
+	append(&collision_objects, collision_object)
 	// inset into dirty objects array
+}
+
+init_cube :: proc(collision_object: ^Collision_Object, center: Vec3) {
+	collision_object.center = center
+	collision_object.verts = make([dynamic]Vec3, 0, 8)
+	collision_object.faces = make([dynamic]Collision_Triangle, 0, 12)
+	verts := [?]Vec3 {
+		// Top Verts
+		{-1, 1, -1},
+		{-1, 1, 1},
+		{1, 1, 1},
+		{1, 1, -1},
+		// Bottom Verts
+		{-1, -1, -1},
+		{-1, -1, 1},
+		{1, -1, 1},
+		{1, -1, -1},
+	}
+
+	faces := [?]Collision_Triangle {
+		// Top
+		{0, 1, 3},
+		{1, 2, 3},
+		// Bottom
+		{4, 7, 5},
+		{7, 6, 5},
+		// Front
+		{0, 3, 7},
+		{7, 4, 0},
+		// Back
+		{2, 1, 6},
+		{1, 5, 6},
+		// Left
+		{6, 3, 2},
+		{6, 7, 3},
+		// Right
+		{1, 0, 5},
+		{4, 5, 0},
+	}
+	append_elems(&collision_object.verts, ..verts[:])
+	append_elems(&collision_object.faces, ..faces[:])
 }
 
 Collision_Triangle :: [3]int
@@ -139,4 +147,39 @@ Collision_Object :: struct {
 	center: Vec3,
 	verts:  [dynamic]Vec3,
 	faces:  [dynamic]Collision_Triangle,
+}
+
+collision_objects: [dynamic]Collision_Object
+
+init_collision_objects :: proc() {
+	collision_objects = make([dynamic]Collision_Object, 0, 8)
+	collision_object: Collision_Object
+	init_cube(&collision_object, {0, -2, 0})
+	append(&collision_objects, collision_object)
+}
+
+render_collision_objects :: proc(show_normals := false) {
+	for obj in collision_objects {
+		for tri, i in obj.faces {
+			color := i == 0 ? rl.BLUE : rl.RED
+			a := obj.verts[tri[0]] + obj.center
+			b := obj.verts[tri[1]] + obj.center
+			c := obj.verts[tri[2]] + obj.center
+			rl.DrawLine3D(a, b, color)
+			rl.DrawLine3D(a, c, color)
+			rl.DrawLine3D(b, c, color)
+			if show_normals {
+				center := (a + b + c) / 3
+				normal := l.normalize(l.cross(b - a, c - a))
+				rl.DrawLine3D(center, center + normal, rl.YELLOW)
+			}
+		}
+	}
+}
+
+draw_scene :: proc() {
+	rl.BeginMode3D(camera)
+	// draw_grid(20)
+	render_collision_objects()
+	rl.EndMode3D()
 }
