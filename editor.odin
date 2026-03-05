@@ -180,6 +180,21 @@ render_collision_objects :: proc(show_normals := false) {
 draw_scene :: proc() {
 	rl.BeginMode3D(camera)
 	// draw_grid(20)
+	frametime := rl.GetFrameTime()
+	delta: Vec3
+	if rl.IsKeyDown(.LEFT) {
+		delta.x += 1
+	}
+	if rl.IsKeyDown(.RIGHT) {
+		delta.x -= 1
+	}
+	if rl.IsKeyDown(.UP) {
+		delta.y += 1
+	}
+	if rl.IsKeyDown(.DOWN) {
+		delta.y -= 1
+	}
+	collision_objects[0].verts[0] += delta * frametime
 	render_collision_objects()
 	rl.EndMode3D()
 }

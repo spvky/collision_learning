@@ -50,7 +50,7 @@ main :: proc() {
 	init_editor_event_manager()
 
 	for !rl.WindowShouldClose() {
-		rl.UpdateCamera(&camera, .ORBITAL)
+		// rl.UpdateCamera(&camera, .ORBITAL)
 		ui_test()
 	}
 }
