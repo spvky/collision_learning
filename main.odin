@@ -1,7 +1,7 @@
 package main
 
-import "core:fmt"
-import "core:math"
+import "base:runtime"
+import "core:log"
 import l "core:math/linalg"
 import rl "vendor:raylib"
 
@@ -40,7 +40,11 @@ pen_depth: f32
 
 
 main :: proc() {
+	context.logger = log.create_console_logger(
+		opt = runtime.Logger_Options{.Level, .Short_File_Path, .Line},
+	)
 	rl.InitWindow(1920, 1080, "GJK")
+	init_ui_context()
 	camera = rl.Camera3D {
 		fovy     = 90,
 		position = {5, 2, -10},
