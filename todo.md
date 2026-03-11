@@ -20,3 +20,8 @@ Tue 10 Mar 2026 04:09:29 PM EDT
 - Game Allocator (Maybe omit this one, as it has the same lifetime as the program)
 - Level Allocator (Emptied when exiting a level, holds things like events emitted in a level)
 - Temp Allocator (Emptied each frame)
+
+Tue 10 Mar 2026 08:13:48 PM EDT
+TODO: 
+- Picking
+- Inspector View

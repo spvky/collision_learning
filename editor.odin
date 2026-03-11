@@ -173,6 +173,11 @@ render_collision_objects :: proc(show_normals := false) {
 				normal := l.normalize(l.cross(b - a, c - a))
 				rl.DrawLine3D(center, center + normal, rl.YELLOW)
 			}
+			if em == .Point {
+				for i in obj.verts {
+					rl.DrawSphere(i + obj.center, 0.15, rl.WHITE)
+				}
+			}
 		}
 	}
 }

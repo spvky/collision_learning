@@ -130,7 +130,7 @@ ui_test :: proc() {
 	drag_editor_windows(&ui_context)
 	rl.BeginDrawing()
 	rl.ClearBackground(rl.BLACK)
-	// draw_ui()
+	draw_ui()
 	draw_scene()
 	draw_editor_windows(&ui_context)
 	rl.EndDrawing()
