@@ -257,7 +257,10 @@ draw_scene :: proc() {
 	if rl.IsKeyDown(.DOWN) {
 		delta.y -= 1
 	}
-	collision_objects[0].verts[0] += delta * frametime
+	if vert, ok := selected_component.(Component_Vert); ok {
+		collision_objects[vert.object_idx].verts[vert.vert_idx] += delta * frametime
+	}
+	// collision_objects[0].verts[0] += delta * frametime
 	render_collision_objects()
 	rl.EndMode3D()
 }

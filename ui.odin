@@ -61,7 +61,7 @@ draw_editor_windows :: proc(u: ^UI_Context) {
 				x      = position.x,
 				y      = position.y + 50,
 				width  = 500,
-				height = 800,
+				height = 200,
 			}
 			rl.DrawRectanglePro(banner_rect, {0, 0}, 0, ACTIVE_TAB_COLOR)
 			title := fmt.tprintf("%v", v)
@@ -84,8 +84,12 @@ draw_editor_windows :: proc(u: ^UI_Context) {
 						vert.object_idx,
 						vert.vert_idx,
 					)
-					x_string := fmt.tprintf("X: %.2f", vertex.x)
-					y_string := fmt.tprintf("Y: %.2f", vertex.y)
+					position_string := fmt.tprintf(
+						"%.2f | %.2f | %.2f",
+						vertex.x,
+						vertex.y,
+						vertex.z,
+					)
 					rl.DrawTextEx(
 						assets.font,
 						strings.clone_to_cstring(info_string, allocator = context.temp_allocator),
@@ -96,16 +100,11 @@ draw_editor_windows :: proc(u: ^UI_Context) {
 					)
 					rl.DrawTextEx(
 						assets.font,
-						strings.clone_to_cstring(x_string, allocator = context.temp_allocator),
-						{margin, position.y + 84},
-						16,
-						0,
-						rl.WHITE,
-					)
-					rl.DrawTextEx(
-						assets.font,
-						strings.clone_to_cstring(y_string, allocator = context.temp_allocator),
-						{margin + 200, position.y + 84},
+						strings.clone_to_cstring(
+							position_string,
+							allocator = context.temp_allocator,
+						),
+						{margin, position.y + 90},
 						16,
 						0,
 						rl.WHITE,
