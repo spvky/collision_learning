@@ -69,12 +69,49 @@ draw_editor_windows :: proc(u: ^UI_Context) {
 			rl.DrawTextEx(
 				assets.font,
 				strings.clone_to_cstring(title, allocator = context.temp_allocator),
-				{margin, position.y + 5},
+				{margin - 5, position.y + 5},
 				40,
 				0,
 				rl.WHITE,
 			)
 			rl.DrawRectanglePro(body_rect, {0, 0}, 0, INACTIVE_TAB_COLOR)
+			switch v {
+			case .Inspector:
+				if vert, ok := selected_component.(Component_Vert); ok {
+					vertex := collision_objects[vert.object_idx].verts[vert.vert_idx]
+					info_string := fmt.tprintf(
+						"Vertex [%v] | [%v]",
+						vert.object_idx,
+						vert.vert_idx,
+					)
+					x_string := fmt.tprintf("X: %.2f", vertex.x)
+					y_string := fmt.tprintf("Y: %.2f", vertex.y)
+					rl.DrawTextEx(
+						assets.font,
+						strings.clone_to_cstring(info_string, allocator = context.temp_allocator),
+						{margin, position.y + 55},
+						24,
+						0,
+						rl.WHITE,
+					)
+					rl.DrawTextEx(
+						assets.font,
+						strings.clone_to_cstring(x_string, allocator = context.temp_allocator),
+						{margin, position.y + 84},
+						16,
+						0,
+						rl.WHITE,
+					)
+					rl.DrawTextEx(
+						assets.font,
+						strings.clone_to_cstring(y_string, allocator = context.temp_allocator),
+						{margin + 200, position.y + 84},
+						16,
+						0,
+						rl.WHITE,
+					)
+				}
+			}
 		}
 	}
 }
@@ -84,7 +121,7 @@ ui_point_inside :: #force_inline proc(p: [2]f32, b: [2][2]f32) -> bool {
 }
 
 get_window_margin :: #force_inline proc(u: ^UI_Context, v: UI_Window) -> f32 {
-	return u.window_positions[v].x + 5
+	return u.window_positions[v].x + 10
 }
 
 pickup_editor_windows :: proc(u: ^UI_Context) {
@@ -128,6 +165,9 @@ ui_test :: proc() {
 	pickup_editor_windows(&ui_context)
 	release_editor_windows(&ui_context)
 	drag_editor_windows(&ui_context)
+	if hit, component := collision_object_raycast(); hit {
+		selected_component = component
+	}
 	rl.BeginDrawing()
 	rl.ClearBackground(rl.BLACK)
 	draw_ui()

@@ -26,6 +26,28 @@ Editor_Event_Payload :: union {
 	Add_Prefab_Payload,
 }
 
+Collision_Object_Component :: union {
+	Component_Vert,
+	Component_Edge,
+	Component_Triangle,
+}
+
+Component_Vert :: struct {
+	object_idx: int,
+	vert_idx:   int,
+}
+
+Component_Edge :: struct {
+	object_idx: int,
+	start_idx:  int,
+	end_idx:    int,
+}
+
+Component_Triangle :: struct {
+	object_idx: int,
+	vert_idx:   int,
+}
+
 Editor_Event_Callback :: proc(event: Editor_Event)
 
 
@@ -158,10 +180,37 @@ init_collision_objects :: proc() {
 	append(&collision_objects, collision_object)
 }
 
+collision_object_raycast :: proc() -> (hit: bool, component: Collision_Object_Component) {
+	ray := rl.GetScreenToWorldRay(rl.GetMousePosition(), camera)
+	if rl.IsMouseButtonPressed(.LEFT) {
+		for obj, i in collision_objects {
+			component_vert := Component_Vert {
+				object_idx = i,
+			}
+			switch em {
+			case .Point:
+				for v, ii in obj.verts {
+					component_vert.vert_idx = ii
+					pos := v + obj.center
+					hit_info := rl.GetRayCollisionSphere(ray, pos, 0.15)
+					if hit_info.hit {
+						hit = true
+						component = component_vert
+						return
+					}
+				}
+			case .Edge:
+			case .Face:
+			}
+		}
+	}
+	return
+}
+
 render_collision_objects :: proc(show_normals := false) {
-	for obj in collision_objects {
-		for tri, i in obj.faces {
-			color := i == 0 ? rl.BLUE : rl.RED
+	for obj, i in collision_objects {
+		for tri in obj.faces {
+			color := rl.RED
 			a := obj.verts[tri[0]] + obj.center
 			b := obj.verts[tri[1]] + obj.center
 			c := obj.verts[tri[2]] + obj.center
@@ -174,8 +223,17 @@ render_collision_objects :: proc(show_normals := false) {
 				rl.DrawLine3D(center, center + normal, rl.YELLOW)
 			}
 			if em == .Point {
-				for i in obj.verts {
-					rl.DrawSphere(i + obj.center, 0.15, rl.WHITE)
+				for vert, ii in obj.verts {
+					color := rl.WHITE
+					switch v in selected_component {
+					case Component_Vert:
+						if v.object_idx == i && v.vert_idx == ii {
+							color = rl.BLUE
+						}
+					case Component_Edge:
+					case Component_Triangle:
+					}
+					rl.DrawSphere(vert + obj.center, 0.15, color)
 				}
 			}
 		}
