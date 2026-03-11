@@ -35,54 +35,76 @@ UI_Context :: struct {
 }
 
 UI_Window :: enum {
-	Editor,
+	Inspector,
 }
 
 init_ui_context :: proc() {
 	ui_context = UI_Context {
-		window_positions = {.Editor = {200, 100}},
-		window_held = {.Editor = false},
-		window_visible = {.Editor = true},
+		window_positions = {.Inspector = {200, 100}},
+		window_held = {.Inspector = false},
+		window_visible = {.Inspector = true},
 	}
 }
 
-draw_editor_window :: proc(u: ^UI_Context) {
-	editor_position := u.window_positions[.Editor]
-	banner_rect := rl.Rectangle {
-		x      = editor_position.x,
-		y      = editor_position.y,
-		width  = 500,
-		height = 50,
-	}
 
-	body_rect := rl.Rectangle {
-		x      = editor_position.x,
-		y      = editor_position.y + 50,
-		width  = 500,
-		height = 800,
+draw_editor_windows :: proc(u: ^UI_Context) {
+	for v in UI_Window {
+		if u.window_visible[v] {
+			position := u.window_positions[v]
+			banner_rect := rl.Rectangle {
+				x      = position.x,
+				y      = position.y,
+				width  = 500,
+				height = 50,
+			}
+			body_rect := rl.Rectangle {
+				x      = position.x,
+				y      = position.y + 50,
+				width  = 500,
+				height = 800,
+			}
+			rl.DrawRectanglePro(banner_rect, {0, 0}, 0, ACTIVE_TAB_COLOR)
+			title := fmt.tprintf("%v", v)
+			margin := get_window_margin(u, v)
+			rl.DrawTextEx(
+				assets.font,
+				strings.clone_to_cstring(title, allocator = context.temp_allocator),
+				{margin, position.y + 5},
+				40,
+				0,
+				rl.WHITE,
+			)
+			rl.DrawRectanglePro(body_rect, {0, 0}, 0, INACTIVE_TAB_COLOR)
+		}
 	}
-	rl.DrawRectanglePro(banner_rect, {0, 0}, 0, ACTIVE_TAB_COLOR)
-	rl.DrawRectanglePro(body_rect, {0, 0}, 0, INACTIVE_TAB_COLOR)
 }
 
 ui_point_inside :: #force_inline proc(p: [2]f32, b: [2][2]f32) -> bool {
 	return p.x >= b[0].x && p.y >= b[0].y && p.x <= b[1].x && p.y <= b[1].y
 }
 
-pickup_editor_window :: proc(u: ^UI_Context) {
-	editor_position := u.window_positions[.Editor]
-	mouse_pos := rl.GetMousePosition()
-	banner_bounds := [2][2]f32 {
-		{editor_position.x, editor_position.y},
-		{editor_position.x + 500, editor_position.y + 50},
-	}
+get_window_margin :: #force_inline proc(u: ^UI_Context, v: UI_Window) -> f32 {
+	return u.window_positions[v].x + 5
+}
 
-	if ui_point_inside(mouse_pos, banner_bounds) && rl.IsMouseButtonPressed(.LEFT) {
-		u.window_held[.Editor] = true
+pickup_editor_windows :: proc(u: ^UI_Context) {
+	for v in UI_Window {
+		if u.window_visible[v] {
+			position := u.window_positions[v]
+			mouse_pos := rl.GetMousePosition()
+			banner_bounds := [2][2]f32 {
+				{position.x, position.y},
+				{position.x + 500, position.y + 50},
+			}
+
+			if ui_point_inside(mouse_pos, banner_bounds) && rl.IsMouseButtonPressed(.LEFT) {
+				u.window_held[v] = true
+			}
+		}
 	}
 }
 
-release_editor_window :: proc(u: ^UI_Context) {
+release_editor_windows :: proc(u: ^UI_Context) {
 	if rl.IsMouseButtonReleased(.LEFT) {
 		for v in UI_Window {
 			u.window_held[v] = false
@@ -90,7 +112,7 @@ release_editor_window :: proc(u: ^UI_Context) {
 	}
 }
 
-drag_editor_window :: proc(u: ^UI_Context) {
+drag_editor_windows :: proc(u: ^UI_Context) {
 	mouse_delta := rl.GetMouseDelta()
 	for v in UI_Window {
 		if u.window_held[v] {
@@ -103,14 +125,14 @@ ui_test :: proc() {
 	// if rl.IsKeyPressed(.TAB) {
 	// 	cycle_editor_mode()
 	// }
-	pickup_editor_window(&ui_context)
-	release_editor_window(&ui_context)
-	drag_editor_window(&ui_context)
+	pickup_editor_windows(&ui_context)
+	release_editor_windows(&ui_context)
+	drag_editor_windows(&ui_context)
 	rl.BeginDrawing()
 	rl.ClearBackground(rl.BLACK)
 	// draw_ui()
 	draw_scene()
-	draw_editor_window(&ui_context)
+	draw_editor_windows(&ui_context)
 	rl.EndDrawing()
 }
 

@@ -14,3 +14,9 @@ Goals:
 Wed 04 Mar 2026 12:13:37 AM EST
 - Added a lot of infra for editor events, better grid and started defining cube prefab
 
+
+Tue 10 Mar 2026 04:09:29 PM EDT
+- Considering uisng a handful of arenas for allocations
+- Game Allocator (Maybe omit this one, as it has the same lifetime as the program)
+- Level Allocator (Emptied when exiting a level, holds things like events emitted in a level)
+- Temp Allocator (Emptied each frame)

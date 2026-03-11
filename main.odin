@@ -44,6 +44,7 @@ main :: proc() {
 		opt = runtime.Logger_Options{.Level, .Short_File_Path, .Line},
 	)
 	rl.InitWindow(1920, 1080, "GJK")
+	load_assets()
 	init_ui_context()
 	camera = rl.Camera3D {
 		fovy     = 90,
