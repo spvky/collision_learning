@@ -26,27 +26,11 @@ Editor_Event_Payload :: union {
 	Add_Prefab_Payload,
 }
 
-Collision_Object_Component :: union {
-	Component_Vert,
-	Component_Edge,
-	Component_Triangle,
-}
-
-Component_Vert :: struct {
+Vertex :: struct {
 	object_idx: int,
 	vert_idx:   int,
 }
 
-Component_Edge :: struct {
-	object_idx: int,
-	start_idx:  int,
-	end_idx:    int,
-}
-
-Component_Triangle :: struct {
-	object_idx: int,
-	vert_idx:   int,
-}
 
 Editor_Event_Callback :: proc(event: Editor_Event)
 
@@ -176,31 +160,26 @@ collision_objects: [dynamic]Collision_Object
 init_collision_objects :: proc() {
 	collision_objects = make([dynamic]Collision_Object, 0, 8)
 	collision_object: Collision_Object
+	selected_vertices = make([dynamic]Vertex, 0, 3)
 	init_cube(&collision_object, {0, -2, 0})
 	append(&collision_objects, collision_object)
 }
 
-collision_object_raycast :: proc() -> (hit: bool, component: Collision_Object_Component) {
+collision_object_raycast :: proc() -> (hit: bool, selected_vertex: Vertex) {
 	ray := rl.GetScreenToWorldRay(rl.GetMousePosition(), camera)
 	if rl.IsMouseButtonPressed(.LEFT) {
 		for obj, i in collision_objects {
-			component_vert := Component_Vert {
-				object_idx = i,
-			}
-			switch em {
-			case .Point:
-				for v, ii in obj.verts {
-					component_vert.vert_idx = ii
-					pos := v + obj.center
-					hit_info := rl.GetRayCollisionSphere(ray, pos, 0.15)
-					if hit_info.hit {
-						hit = true
-						component = component_vert
-						return
-					}
+			selected_vertex.object_idx = i
+			for v, ii in obj.verts {
+				selected_vertex.vert_idx = ii
+				pos := v + obj.center
+				hit_info := rl.GetRayCollisionSphere(ray, pos, 0.15)
+				if hit_info.hit {
+					selected_vertex.vert_idx = ii
+					fmt.printfln("Found Vertices: %v", selected_vertex)
+					hit = true
+					return
 				}
-			case .Edge:
-			case .Face:
 			}
 		}
 	}
@@ -214,6 +193,7 @@ render_collision_objects :: proc(show_normals := false) {
 			a := obj.verts[tri[0]] + obj.center
 			b := obj.verts[tri[1]] + obj.center
 			c := obj.verts[tri[2]] + obj.center
+
 			rl.DrawLine3D(a, b, color)
 			rl.DrawLine3D(a, c, color)
 			rl.DrawLine3D(b, c, color)
@@ -222,19 +202,16 @@ render_collision_objects :: proc(show_normals := false) {
 				normal := l.normalize(l.cross(b - a, c - a))
 				rl.DrawLine3D(center, center + normal, rl.YELLOW)
 			}
-			if em == .Point {
-				for vert, ii in obj.verts {
-					color := rl.WHITE
-					switch v in selected_component {
-					case Component_Vert:
-						if v.object_idx == i && v.vert_idx == ii {
-							color = rl.BLUE
-						}
-					case Component_Edge:
-					case Component_Triangle:
+
+			for vert, ii in obj.verts {
+				color := rl.WHITE
+
+				for sv, k in selected_vertices {
+					if sv.object_idx == i && sv.vert_idx == ii {
+						color = k == 0 ? rl.GREEN : rl.BLUE
 					}
-					rl.DrawSphere(vert + obj.center, 0.15, color)
 				}
+				rl.DrawSphere(vert + obj.center, 0.15, color)
 			}
 		}
 	}
@@ -257,10 +234,21 @@ draw_scene :: proc() {
 	if rl.IsKeyDown(.DOWN) {
 		delta.y -= 1
 	}
-	if vert, ok := selected_component.(Component_Vert); ok {
-		collision_objects[vert.object_idx].verts[vert.vert_idx] += delta * frametime
+	for sv in selected_vertices {
+		collision_objects[sv.object_idx].verts[sv.vert_idx] += delta * frametime
 	}
-	// collision_objects[0].verts[0] += delta * frametime
 	render_collision_objects()
 	rl.EndMode3D()
+}
+
+draw_gimbal :: proc() {
+	raw_positions: Vec3
+	for sv in selected_vertices {
+		obj := &collision_objects[sv.object_idx]
+		raw_positions += obj.verts[sv.vert_idx] + obj.center
+	}
+	gimbal_position := (raw_positions) / f32(len(selected_vertices))
+	rl.DrawLine3D(gimbal_position, gimbal_position + {1, 0, 0}, rl.BLUE)
+	rl.DrawLine3D(gimbal_position, gimbal_position + {0, 1, 0}, rl.YELLOW)
+	rl.DrawLine3D(gimbal_position, gimbal_position + {0, 0, 1}, rl.RED)
 }

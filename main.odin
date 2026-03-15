@@ -20,7 +20,7 @@ Editor_Mode :: enum {
 }
 
 em: Editor_Mode
-selected_component: Collision_Object_Component
+selected_vertices: [dynamic]Vertex
 
 tg := Tab_Group(Editor_Mode) {
 	font_color     = rl.WHITE,

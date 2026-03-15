@@ -77,19 +77,21 @@ draw_editor_windows :: proc(u: ^UI_Context) {
 			rl.DrawRectanglePro(body_rect, {0, 0}, 0, INACTIVE_TAB_COLOR)
 			switch v {
 			case .Inspector:
-				if vert, ok := selected_component.(Component_Vert); ok {
-					vertex := collision_objects[vert.object_idx].verts[vert.vert_idx]
-					info_string := fmt.tprintf(
-						"Vertex [%v] | [%v]",
-						vert.object_idx,
-						vert.vert_idx,
-					)
-					position_string := fmt.tprintf(
-						"%.2f | %.2f | %.2f",
-						vertex.x,
-						vertex.y,
-						vertex.z,
-					)
+				for sv in selected_vertices {
+					vertex := collision_objects[sv.object_idx].verts[sv.vert_idx]
+					info_string, position_string: string
+					switch em {
+					case .Point:
+						info_string = fmt.tprintf("Vertex [%v] | [%v]", sv.object_idx, sv.vert_idx)
+						position_string = fmt.tprintf(
+							"%.2f | %.2f | %.2f",
+							vertex.x,
+							vertex.y,
+							vertex.z,
+						)
+					case .Edge:
+					case .Face:
+					}
 					rl.DrawTextEx(
 						assets.font,
 						strings.clone_to_cstring(info_string, allocator = context.temp_allocator),
@@ -158,14 +160,31 @@ drag_editor_windows :: proc(u: ^UI_Context) {
 }
 
 ui_test :: proc() {
-	// if rl.IsKeyPressed(.TAB) {
-	// 	cycle_editor_mode()
-	// }
+	if rl.IsKeyPressed(.TAB) {
+		cycle_editor_mode()
+	}
 	pickup_editor_windows(&ui_context)
 	release_editor_windows(&ui_context)
 	drag_editor_windows(&ui_context)
-	if hit, component := collision_object_raycast(); hit {
-		selected_component = component
+	if hit, hit_vertex := collision_object_raycast(); hit {
+		found: bool
+		found_index: int
+		for sv, i in selected_vertices {
+			if sv == hit_vertex {
+				found = true
+				found_index = i
+				break
+			}
+		}
+		shift_held := rl.IsKeyDown(.LEFT_SHIFT)
+		if !found {
+			if len(selected_vertices) > 0 && !shift_held {
+				clear(&selected_vertices)
+			}
+			append(&selected_vertices, hit_vertex)
+		} else {
+			unordered_remove(&selected_vertices, found_index)
+		}
 	}
 	rl.BeginDrawing()
 	rl.ClearBackground(rl.BLACK)
