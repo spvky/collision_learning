@@ -176,7 +176,6 @@ collision_object_raycast :: proc() -> (hit: bool, selected_vertex: Vertex) {
 				hit_info := rl.GetRayCollisionSphere(ray, pos, 0.15)
 				if hit_info.hit {
 					selected_vertex.vert_idx = ii
-					fmt.printfln("Found Vertices: %v", selected_vertex)
 					hit = true
 					return
 				}

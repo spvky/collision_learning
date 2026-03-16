@@ -25,3 +25,8 @@ Tue 10 Mar 2026 08:13:48 PM EDT
 TODO: 
 - Picking
 - Inspector View
+
+
+Inspector rendering
+
+
