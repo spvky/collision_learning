@@ -1,5 +1,6 @@
 package main
 
+import l "core:math/linalg"
 import rl "vendor:raylib"
 
 mesh_from_collision_object :: proc(co: ^Collision_Object) -> (mesh: rl.Mesh) {
@@ -44,6 +45,47 @@ mesh_from_collision_object :: proc(co: ^Collision_Object) -> (mesh: rl.Mesh) {
 	mesh.indices = raw_data(indices[:])
 	mesh.texcoords = raw_data(tex_coords[:])
 	mesh.texcoords2 = raw_data(tex_coords[:])
+	mesh.colors = raw_data(colors[:])
+	mesh.normals = raw_data(normals[:])
+	rl.UploadMesh(&mesh, false)
+	return mesh
+}
+
+mesh_from_collision_object_ex :: proc(co: ^Collision_Object) -> (mesh: rl.Mesh) {
+	tri_count := len(co.faces)
+	vert_count := tri_count * 3
+	mesh.vertexCount = i32(vert_count)
+	mesh.triangleCount = i32(tri_count)
+
+	// Convert our verts array to the format raylib expects them
+	vertices := make([dynamic]f32, 0, 3 * vert_count, allocator = context.temp_allocator)
+	colors := make([dynamic]u8, 0, vert_count * 4, allocator = context.temp_allocator)
+	normals := make([dynamic]f32, 0, vert_count * 3, allocator = context.temp_allocator)
+
+	for face in co.faces {
+		a := co.verts[face[0]]
+		b := co.verts[face[1]]
+		c := co.verts[face[2]]
+		center := (a + b + c) / 3
+		normal := l.normalize(l.cross(b - a, c - a))
+		color_val := l.dot(normal, Vec3{0, 1, 0}) * 150
+
+		for i in 0 ..< 3 {
+			current_vert := co.verts[face[i]]
+			for ii in 0 ..< 3 {
+				append(&vertices, current_vert[ii])
+				for iii in 0 ..< 3 {
+					append(&normals, normal[iii])
+				}
+				for iii in 0 ..< 3 {
+					append(&colors, u8(color_val) + 105)
+				}
+				append(&colors, 255)
+			}
+		}
+	}
+
+	mesh.vertices = raw_data(vertices[:])
 	mesh.colors = raw_data(colors[:])
 	mesh.normals = raw_data(normals[:])
 	rl.UploadMesh(&mesh, false)

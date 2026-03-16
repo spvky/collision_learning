@@ -67,7 +67,7 @@ main :: proc() {
 
 capture_object :: proc() {
 	if rl.IsKeyPressed(.S) {
-		test_mesh = mesh_from_collision_object(&collision_objects[0])
+		test_mesh = mesh_from_collision_object_ex(&collision_objects[0])
 		test_model = rl.LoadModelFromMesh(test_mesh)
 		captured = true
 		fmt.printfln("%v", test_model)
