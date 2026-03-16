@@ -43,6 +43,9 @@ projected: Vec3
 pen_normal: Vec3
 pen_depth: f32
 
+ramp: rl.Model
+ramp_tris: [dynamic]Triangle
+
 
 main :: proc() {
 	context.logger = log.create_console_logger(
@@ -58,19 +61,23 @@ main :: proc() {
 	}
 	init_collision_objects()
 	init_editor_event_manager()
+	ramp = rl.LoadModel("assets/ramp.obj")
+	ramp_tris = get_triangles_from_mesh(&ramp)
+	fmt.printfln("Ramp Tri Count: %v\nRamp Tris: %v", len(ramp_tris), ramp_tris[:])
 
 	for !rl.WindowShouldClose() {
-		// rl.UpdateCamera(&camera, .ORBITAL)
+		rl.UpdateCamera(&camera, .ORBITAL)
 		ui_test()
 	}
 }
 
 capture_object :: proc() {
 	if rl.IsKeyPressed(.S) {
+		check_tex := rl.LoadTexture("assets/check.png")
 		test_mesh = mesh_from_collision_object_ex(&collision_objects[0])
 		test_model = rl.LoadModelFromMesh(test_mesh)
+		test_model.materials[0].maps[0].texture = check_tex
 		captured = true
-		fmt.printfln("%v", test_model)
 	}
 }
 
@@ -124,7 +131,7 @@ same_direction :: proc(a, b: Vec3) -> bool {
 }
 
 triangle_normal :: proc(t: Triangle) -> (normal: Vec3) {
-	normal = l.normalize0(l.cross(t[2] - t[0], t[1] - t[0])) //Triangle Normal
+	normal = l.normalize0(l.cross(t[1] - t[0], t[2] - t[0])) //Triangle Normal
 	return
 }
 
