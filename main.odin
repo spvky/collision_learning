@@ -1,6 +1,7 @@
 package main
 
 import "base:runtime"
+import "core:fmt"
 import "core:log"
 import l "core:math/linalg"
 import rl "vendor:raylib"
@@ -21,6 +22,9 @@ Editor_Mode :: enum {
 
 em: Editor_Mode
 selected_vertices: [dynamic]Vertex
+test_mesh: rl.Mesh
+test_model: rl.Model
+captured: bool
 
 tg := Tab_Group(Editor_Mode) {
 	font_color     = rl.WHITE,
@@ -58,6 +62,15 @@ main :: proc() {
 	for !rl.WindowShouldClose() {
 		// rl.UpdateCamera(&camera, .ORBITAL)
 		ui_test()
+	}
+}
+
+capture_object :: proc() {
+	if rl.IsKeyPressed(.S) {
+		test_mesh = mesh_from_collision_object(&collision_objects[0])
+		test_model = rl.LoadModelFromMesh(test_mesh)
+		captured = true
+		fmt.printfln("%v", test_model)
 	}
 }
 

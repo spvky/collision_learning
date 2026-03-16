@@ -219,6 +219,7 @@ render_collision_objects :: proc(show_normals := false) {
 draw_scene :: proc() {
 	rl.BeginMode3D(camera)
 	// draw_grid(20)
+	capture_object()
 	frametime := rl.GetFrameTime()
 	delta: Vec3
 	if rl.IsKeyDown(.LEFT) {
@@ -235,6 +236,9 @@ draw_scene :: proc() {
 	}
 	for sv in selected_vertices {
 		collision_objects[sv.object_idx].verts[sv.vert_idx] += delta * frametime
+	}
+	if captured {
+		rl.DrawModel(test_model, {2, 0, 0}, 1, rl.WHITE)
 	}
 	render_collision_objects()
 	rl.EndMode3D()
