@@ -240,11 +240,11 @@ draw_scene :: proc() {
 	if captured {
 		rl.DrawModel(test_model, {2, 0, 0}, 1, rl.WHITE)
 	}
-	rl.DrawModel(ramp, {0, 0, 0}, 1, rl.WHITE)
+	// rl.DrawModel(test_level, {0, 0, 0}, 1, rl.WHITE)
 	// render_collision_objects()
-	// for t in ramp_tris {
-	// 	draw_triangle(t)
-	// }
+	for t in test_level_tris {
+		draw_triangle(t)
+	}
 	rl.EndMode3D()
 }
 

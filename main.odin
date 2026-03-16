@@ -43,8 +43,8 @@ projected: Vec3
 pen_normal: Vec3
 pen_depth: f32
 
-ramp: rl.Model
-ramp_tris: [dynamic]Triangle
+test_level: rl.Model
+test_level_tris: [dynamic]Triangle
 
 
 main :: proc() {
@@ -61,9 +61,9 @@ main :: proc() {
 	}
 	init_collision_objects()
 	init_editor_event_manager()
-	ramp = rl.LoadModel("assets/ramp.obj")
-	ramp_tris = get_triangles_from_mesh(&ramp)
-	fmt.printfln("Ramp Tri Count: %v\nRamp Tris: %v", len(ramp_tris), ramp_tris[:])
+	test_level = rl.LoadModel("assets/test_level.obj")
+	test_level_tris = get_triangles_from_mesh(&test_level)
+	fmt.printfln("Ramp Tri Count: %v\nRamp Tris: %v", len(test_level_tris), test_level_tris[:])
 
 	for !rl.WindowShouldClose() {
 		rl.UpdateCamera(&camera, .ORBITAL)
