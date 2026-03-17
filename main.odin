@@ -6,7 +6,6 @@ import "core:log"
 import l "core:math/linalg"
 import rl "vendor:raylib"
 
-camera: rl.Camera3D
 Vec3 :: [3]f32
 
 // xyz: position, w: radius
@@ -46,6 +45,8 @@ pen_depth: f32
 test_level: rl.Model
 test_level_tris: [dynamic]Triangle
 
+gimbal: rl.Model
+
 
 main :: proc() {
 	context.logger = log.create_console_logger(
@@ -53,20 +54,18 @@ main :: proc() {
 	)
 	rl.InitWindow(1920, 1080, "GJK")
 	load_assets()
+	init_camera()
 	init_ui_context()
-	camera = rl.Camera3D {
-		fovy     = 90,
-		position = {5, 2, -10},
-		up       = {0, 1, 0},
-	}
 	init_collision_objects()
 	init_editor_event_manager()
 	test_level = rl.LoadModel("assets/test_level.obj")
+	gimbal = rl.LoadModel("assets/gimbal.obj")
 	test_level_tris = get_triangles_from_mesh(&test_level)
 	fmt.printfln("Ramp Tri Count: %v\nRamp Tris: %v", len(test_level_tris), test_level_tris[:])
 
 	for !rl.WindowShouldClose() {
-		rl.UpdateCamera(&camera, .ORBITAL)
+		update_camera_position()
+		// rl.UpdateCamera(&camera, .ORBITAL)
 		ui_test()
 	}
 }

@@ -240,6 +240,7 @@ draw_scene :: proc() {
 	if captured {
 		rl.DrawModel(test_model, {2, 0, 0}, 1, rl.WHITE)
 	}
+	debug_draw_player()
 	// rl.DrawModel(test_level, {0, 0, 0}, 1, rl.WHITE)
 	// render_collision_objects()
 	for t in test_level_tris {
