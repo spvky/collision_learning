@@ -34,3 +34,34 @@ Tue 17 Mar 2026 04:23:16 PM EDT
 
 - Basic jumping and gravity
 - Slopes
+
+
+Tue 17 Mar 2026 11:54:54 PM EDT
+
+- MC is a little ghost guy
+- Movement abilities in different hats/shoes
+- Or maybe just one hat, a janitors hat
+- Ghostly janitor working for a mad scientist to get shines, but the shines are some sort of energy source
+- Can use different star thresholds to give upgrades
+- Skid to a stop when sucking, tracking how much your speed drops
+- Suck functions like punch grab in SM64
+- Can throw like in SM64, or aim and shoot out what you pick up
+- Have the Luigis mansion ghost mechanic where how much damage you deal is based on sucking in the opisite direction
+
+Default Abilities:
+- Side hop
+- Tripple jump
+- Long Jump
+- Wall kick
+- Suck and Shoot
+- Crouch backflip
+- Dive
+- Slide
+
+
+Unlockable:
+- Ground Pound
+- Grapple
+- Sucking up fluid
+
+For vacum effect, scroll the UVS in the wind direction while rotating the cone

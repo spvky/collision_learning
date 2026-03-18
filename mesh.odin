@@ -123,7 +123,7 @@ mesh_from_collision_object_ex :: proc(co: ^Collision_Object) -> (mesh: rl.Mesh) 
 	return mesh
 }
 
-get_triangles_from_mesh :: proc(m: ^rl.Model) -> (triangles: [dynamic]Triangle) {
+get_triangles_from_obj_mesh :: proc(m: ^rl.Model) -> (triangles: [dynamic]Triangle) {
 	total_face_count: int
 	for i in 0 ..< m.meshCount {
 		total_face_count += int(m.meshes[i].triangleCount)
