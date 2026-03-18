@@ -63,5 +63,6 @@ Unlockable:
 - Ground Pound
 - Grapple
 - Sucking up fluid
+- SMS Dash Nozzle/Super Metroid Speed booster
 
 For vacum effect, scroll the UVS in the wind direction while rotating the cone

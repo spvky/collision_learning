@@ -5,10 +5,13 @@ import gm "shared:ghst/math"
 import rl "vendor:raylib"
 
 Player :: struct {
-	position:   Vec3,
-	velocity:   Vec3,
-	speed:      f32,
-	move_delta: Vec3,
+	position:    Vec3,
+	velocity:    Vec3,
+	speed:       f32,
+	move_delta:  Vec3,
+	state:       Player_State,
+	flags:       bit_set[Player_Flag;u16],
+	flag_timers: [Player_Flag]f32,
 }
 
 player: Player
