@@ -11,6 +11,8 @@ Camera :: struct {
 	angle:         f32,
 	look_target:   Vec3,
 	smoothing:     f32,
+	forward:       Vec3,
+	right:         Vec3,
 	mode:          Camera_Mode,
 }
 
@@ -28,7 +30,7 @@ init_camera :: proc() {
 		fovy          = 90,
 		position      = {5, 2, -10},
 		up            = {0, 1, 0},
-		target_offset = {0, 10, 10},
+		target_offset = {0, 5, 5},
 		smoothing     = 10,
 	}
 }
@@ -38,10 +40,10 @@ update_camera_position :: proc() {
 	shift: f32
 	switch camera.mode {
 	case .Octal:
-		if rl.IsKeyPressed(.A) {
+		if rl.IsKeyPressed(.LEFT) {
 			camera.target_angle += ROT_SEGMENT
 		}
-		if rl.IsKeyPressed(.D) {
+		if rl.IsKeyPressed(.RIGHT) {
 			camera.target_angle -= ROT_SEGMENT
 		}
 	case .Free:
@@ -64,7 +66,16 @@ update_camera_position :: proc() {
 		math.sin(camera.angle) * camera.target_offset.z,
 	}
 
+
 	new_position := camera.look_target + offset
 	camera.position = l.lerp(camera.position, new_position, delta * camera.smoothing)
 	camera.target = camera.look_target
+	camera.forward = l.normalize0(camera.position - camera.look_target)
+	camera.right = l.normalize0(l.cross(camera.forward, Vec3{0, 1, 0}))
+}
+
+interpolate_vector :: proc(vector: Vec3) -> Vec3 {
+	true_vec := (camera.forward * -vector.z) + (camera.right * -vector.x)
+	true_vec.y = 0
+	return l.normalize0(true_vec)
 }

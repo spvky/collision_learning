@@ -6,6 +6,7 @@ import "core:log"
 import l "core:math/linalg"
 import rl "vendor:raylib"
 
+Vec2 :: [2]f32
 Vec3 :: [3]f32
 
 // xyz: position, w: radius
@@ -58,6 +59,7 @@ main :: proc() {
 	init_ui_context()
 	init_collision_objects()
 	init_editor_event_manager()
+	init_player({0, 2, 0})
 	test_level = rl.LoadModel("assets/test_level.obj")
 	gimbal = rl.LoadModel("assets/gimbal.obj")
 	test_level_tris = get_triangles_from_mesh(&test_level)
@@ -65,19 +67,21 @@ main :: proc() {
 
 	for !rl.WindowShouldClose() {
 		update_camera_position()
+		move_player()
+		apply_player_velocity()
 		// rl.UpdateCamera(&camera, .ORBITAL)
 		ui_test()
 	}
 }
 
 capture_object :: proc() {
-	if rl.IsKeyPressed(.S) {
-		check_tex := rl.LoadTexture("assets/check.png")
-		test_mesh = mesh_from_collision_object_ex(&collision_objects[0])
-		test_model = rl.LoadModelFromMesh(test_mesh)
-		test_model.materials[0].maps[0].texture = check_tex
-		captured = true
-	}
+	// if rl.IsKeyPressed(.S) {
+	// 	check_tex := rl.LoadTexture("assets/check.png")
+	// 	test_mesh = mesh_from_collision_object_ex(&collision_objects[0])
+	// 	test_model = rl.LoadModelFromMesh(test_mesh)
+	// 	test_model.materials[0].maps[0].texture = check_tex
+	// 	captured = true
+	// }
 }
 
 move_sphere :: proc() {
@@ -134,17 +138,19 @@ triangle_normal :: proc(t: Triangle) -> (normal: Vec3) {
 	return
 }
 
-draw_triangle :: proc(t: Triangle) {
-	rl.DrawSphere(t[0], 0.25, rl.BLUE)
-	rl.DrawSphere(t[1], 0.25, rl.PINK)
-	rl.DrawSphere(t[2], 0.25, rl.BEIGE)
+draw_triangle :: proc(t: Triangle, draw_normal := false) {
+	// rl.DrawSphere(t[0], 0.25, rl.BLUE)
+	// rl.DrawSphere(t[1], 0.25, rl.PINK)
+	// rl.DrawSphere(t[2], 0.25, rl.BEIGE)
 	rl.DrawLine3D(t[0], t[1], rl.RED)
 	rl.DrawLine3D(t[0], t[2], rl.RED)
 	rl.DrawLine3D(t[1], t[2], rl.RED)
 
-	normal := triangle_normal(t)
-	center := (t[0] + t[1] + t[2]) / 3
-	rl.DrawLine3D(center, center + normal * 2, rl.YELLOW)
+	if draw_normal {
+		normal := triangle_normal(t)
+		center := (t[0] + t[1] + t[2]) / 3
+		rl.DrawLine3D(center, center + normal * 2, rl.YELLOW)
+	}
 }
 
 draw_sphere :: proc(s: Sphere) {

@@ -30,3 +30,7 @@ TODO:
 Inspector rendering
 
 
+Tue 17 Mar 2026 04:23:16 PM EDT
+
+- Basic jumping and gravity
+- Slopes
