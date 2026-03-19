@@ -219,7 +219,6 @@ render_collision_objects :: proc(show_normals := false) {
 draw_scene :: proc() {
 	rl.BeginMode3D(camera)
 	// draw_grid(20)
-	capture_object()
 	frametime := rl.GetFrameTime()
 	delta: Vec3
 	if rl.IsKeyDown(.LEFT) {
@@ -244,7 +243,7 @@ draw_scene :: proc() {
 	// rl.DrawModel(test_level, {0, 0, 0}, 1, rl.WHITE)
 	// render_collision_objects()
 	for t in test_level_tris {
-		draw_triangle(t)
+		draw_triangle(t, true)
 	}
 	rl.EndMode3D()
 }

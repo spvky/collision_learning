@@ -36,7 +36,7 @@ tg := Tab_Group(Editor_Mode) {
 	value_ptr      = &em,
 }
 
-tri := Triangle{{-5, 0, -1}, {1, 0, -1}, {2, 0, 2}}
+tri := Triangle{{-5, 0, -1}, {2, 0, 2}, {1, 0, -1}}
 sphere := Sphere{1, 3, 2, 1}
 colliding: bool
 projected: Vec3
@@ -62,47 +62,14 @@ main :: proc() {
 	init_player({0, 2, 0})
 	test_level = rl.LoadModel("assets/test_level.obj")
 	gimbal = rl.LoadModel("assets/gimbal.obj")
-	test_level_tris = get_triangles_from_mesh(&test_level)
+	test_level_tris = get_triangles_from_obj_mesh(&test_level)
 	fmt.printfln("Ramp Tri Count: %v\nRamp Tris: %v", len(test_level_tris), test_level_tris[:])
 
 	for !rl.WindowShouldClose() {
 		update_camera_position()
-		move_player()
-		apply_player_velocity()
-		// rl.UpdateCamera(&camera, .ORBITAL)
+		player_update()
 		ui_test()
-	}
-}
-
-capture_object :: proc() {
-	// if rl.IsKeyPressed(.S) {
-	// 	check_tex := rl.LoadTexture("assets/check.png")
-	// 	test_mesh = mesh_from_collision_object_ex(&collision_objects[0])
-	// 	test_model = rl.LoadModelFromMesh(test_mesh)
-	// 	test_model.materials[0].maps[0].texture = check_tex
-	// 	captured = true
-	// }
-}
-
-move_sphere :: proc() {
-	delta := rl.GetFrameTime()
-	if rl.IsKeyDown(.W) {
-		sphere[2] += delta * 5
-	}
-	if rl.IsKeyDown(.S) {
-		sphere[2] -= delta * 5
-	}
-	if rl.IsKeyDown(.D) {
-		sphere[0] -= delta * 5
-	}
-	if rl.IsKeyDown(.A) {
-		sphere[0] += delta * 5
-	}
-	if rl.IsKeyDown(.UP) {
-		sphere[1] += delta * 5
-	}
-	if rl.IsKeyDown(.DOWN) {
-		sphere[1] -= delta * 5
+		// sphere_triangle_test()
 	}
 }
 
@@ -139,9 +106,9 @@ triangle_normal :: proc(t: Triangle) -> (normal: Vec3) {
 }
 
 draw_triangle :: proc(t: Triangle, draw_normal := false) {
-	// rl.DrawSphere(t[0], 0.25, rl.BLUE)
-	// rl.DrawSphere(t[1], 0.25, rl.PINK)
-	// rl.DrawSphere(t[2], 0.25, rl.BEIGE)
+	rl.DrawSphere(t[0], 0.25, rl.BLUE)
+	rl.DrawSphere(t[1], 0.25, rl.PINK)
+	rl.DrawSphere(t[2], 0.25, rl.BEIGE)
 	rl.DrawLine3D(t[0], t[1], rl.RED)
 	rl.DrawLine3D(t[0], t[2], rl.RED)
 	rl.DrawLine3D(t[1], t[2], rl.RED)

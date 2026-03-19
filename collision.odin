@@ -66,7 +66,7 @@ sphere_triangle_collision :: proc(
 
 		// if l.distance(best_point, s.xyz) < s.w {
 		len := l.length(intersection_vec)
-		penetration_normal = intersection_vec / len
+		penetration_normal = (intersection_vec / len)
 		penetration_depth = s.w - len
 		collision = true
 		// }
@@ -131,9 +131,32 @@ sphere_triangle_test :: proc() {
 		sphere.xyz += pen_depth * pen_normal
 	}
 	draw_grid()
-	draw_triangle(tri)
+	draw_triangle(tri, true)
 	draw_sphere(sphere)
 	draw_nearest()
 	rl.EndMode3D()
 	rl.EndDrawing()
+}
+
+
+move_sphere :: proc() {
+	delta := rl.GetFrameTime()
+	if rl.IsKeyDown(.W) {
+		sphere[2] += delta * 5
+	}
+	if rl.IsKeyDown(.S) {
+		sphere[2] -= delta * 5
+	}
+	if rl.IsKeyDown(.D) {
+		sphere[0] -= delta * 5
+	}
+	if rl.IsKeyDown(.A) {
+		sphere[0] += delta * 5
+	}
+	if rl.IsKeyDown(.UP) {
+		sphere[1] += delta * 5
+	}
+	if rl.IsKeyDown(.DOWN) {
+		sphere[1] -= delta * 5
+	}
 }
