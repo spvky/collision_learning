@@ -1,8 +1,46 @@
 package main
 
+import "core:fmt"
 import "core:math"
 import l "core:math/linalg"
 import rl "vendor:raylib"
+
+Plane :: struct {
+	normal:   Vec3,
+	distance: f32,
+}
+
+triangle_plane :: proc(t: Triangle) -> (p: Plane) {
+	p.normal = triangle_normal(t)
+	p.dist = l.dot(p.normal, t.a)
+	return
+}
+
+plane_nearest_point :: proc(p: Plane, v: Vec3) -> Vec3 {
+	ndot := l.dot(p.normal, v)
+	dist := (ndot - p.distance) * p.normal
+	return v - dist
+
+}
+
+triangle_sphere_nearest_point :: proc(t: Triangle, s: Sphere) {
+	p
+}
+
+// Creating a simplified minkowski-sum
+alternate_point_triangle_collision :: proc(p: Vec3, t: Triangle) {
+	p0 := s.xyz
+	pa := t[0] - p0
+	pb := t[1] - p0
+	pc := t[2] - p0
+	npbc := l.normalize(l.cross(pb, pc))
+	npac := l.normalize(l.cross(pa, pc))
+	npab := l.normalize(l.cross(pa, pb))
+
+	if l.dot(npbc, npac) < 1 || l.dot(npbc, npab) < 1 {
+		// No collision
+	}
+}
 
 sphere_triangle_collision :: proc(
 	s: Sphere,
@@ -41,32 +79,35 @@ sphere_triangle_collision :: proc(
 
 		if inside {
 			intersection_vec = s.xyz - p0
-		} else {
-			d := s.xyz - np[0]
-			best_distsq := l.dot(d, d)
-			best_point = np[0]
-			intersection_vec = d
-
-			d = s.xyz - np[1]
-			distsq := l.dot(d, d)
-			if distsq < best_distsq {
-				distsq = best_distsq
-				best_point = np[1]
-				intersection_vec = d
-			}
-
-			d = s.xyz - np[2]
-			distsq = l.dot(d, d)
-			if distsq < best_distsq {
-				distsq = best_distsq
-				best_point = np[2]
-				intersection_vec = d
-			}
+			// } else {
+			// 	d := s.xyz - np[0]
+			// 	best_distsq := l.dot(d, d)
+			// 	best_point = np[0]
+			// 	intersection_vec = d
+			//
+			// 	d = s.xyz - np[1]
+			// 	distsq := l.dot(d, d)
+			// 	if distsq < best_distsq {
+			// 		distsq = best_distsq
+			// 		best_point = np[1]
+			// 		intersection_vec = d
+			// 	}
+			//
+			// 	d = s.xyz - np[2]
+			// 	distsq = l.dot(d, d)
+			// 	if distsq < best_distsq {
+			// 		distsq = best_distsq
+			// 		best_point = np[2]
+			// 		intersection_vec = d
+			// 	}
+			// }
 		}
 
 		// if l.distance(best_point, s.xyz) < s.w {
 		len := l.length(intersection_vec)
-		penetration_normal = (intersection_vec / len)
+		fmt.printfln("Pre Norm: %v", intersection_vec / len)
+		penetration_normal = l.normalize0(intersection_vec / len)
+		fmt.printfln("Post Norm: %v", intersection_vec / len)
 		penetration_depth = s.w - len
 		collision = true
 		// }
