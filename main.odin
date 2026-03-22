@@ -60,16 +60,17 @@ main :: proc() {
 	init_collision_objects()
 	init_editor_event_manager()
 	init_player({0, 2, 0})
-	test_level = rl.LoadModel("assets/test_level.obj")
+	test_level = rl.LoadModel("assets/test_level.glb")
 	gimbal = rl.LoadModel("assets/gimbal.obj")
-	test_level_tris = get_triangles_from_obj_mesh(&test_level)
-	fmt.printfln("Ramp Tri Count: %v\nRamp Tris: %v", len(test_level_tris), test_level_tris[:])
+	// test_level_tris = get_triangles_from_obj_mesh(&test_level)
+	fmt.printfln("Test Level Mesh Count: %v", test_level.meshCount)
 
 	for !rl.WindowShouldClose() {
 		update_camera_position()
 		player_update()
 		ui_test()
 		// sphere_triangle_test()
+		free_all(context.temp_allocator)
 	}
 }
 
@@ -94,10 +95,6 @@ draw_grid :: proc(size: int = 10) {
 		rl.DrawLine3D({-f_i, -f_size, 0}, {-f_i, f_size, 0}, grid_white)
 
 	}
-}
-
-same_direction :: proc(a, b: Vec3) -> bool {
-	return l.dot(a, b) > 0
 }
 
 triangle_normal :: proc(t: Triangle) -> (normal: Vec3) {

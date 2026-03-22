@@ -242,9 +242,16 @@ draw_scene :: proc() {
 	debug_draw_player()
 	// rl.DrawModel(test_level, {0, 0, 0}, 1, rl.WHITE)
 	// render_collision_objects()
-	for t in test_level_tris {
-		draw_triangle(t, true)
-	}
+	// for t in test_level_tris {
+	// 	draw_triangle(t, true)
+	// }
+
+	// Draw Origin
+	rl.DrawSphere({0, 0, 0}, 0.25, rl.ORANGE)
+
+
+	draw_simplex(&test_simplex)
+	rl.DrawModelWires(test_level, {0, 0, 0}, 1, rl.GREEN)
 	rl.EndMode3D()
 }
 

@@ -13,6 +13,7 @@ Player :: struct {
 	state:       Player_State,
 	flags:       bit_set[Player_Flag;u16],
 	flag_timers: [Player_Flag]f32,
+	colliding:   bool,
 }
 
 player: Player
@@ -24,18 +25,20 @@ init_player :: proc(position: Vec3) {
 
 debug_draw_player :: proc() {
 	// rl.DrawModel(gimbal, player.position, 1, rl.WHITE)
-	rl.DrawSphere(player.position, 0.5, rl.BLUE)
+	color := player.colliding ? rl.RED : rl.BLUE
+	rl.DrawSphere(player.position, 0.5, color)
 }
 
 player_update :: proc() {
 	move_player()
-	apply_player_gravity()
+	// apply_player_gravity()
 	apply_player_velocity()
 	player_collision()
 }
 
 move_player :: proc() {
 	move_delta: Vec3
+	fly_delta: f32
 	if rl.IsKeyDown(.A) {
 		move_delta.x -= 1
 	}
@@ -48,8 +51,15 @@ move_player :: proc() {
 	if rl.IsKeyDown(.S) {
 		move_delta.z -= 1
 	}
+	if rl.IsKeyDown(.UP) {
+		fly_delta += 1
+	}
+	if rl.IsKeyDown(.DOWN) {
+		fly_delta -= 1
+	}
 	player.move_delta = l.normalize0(move_delta)
-	y_velo := player.velocity.y
+	// y_velo := player.velocity.y
+	y_velo := player.speed * fly_delta
 	player.velocity = interpolate_vector(move_delta) * player.speed
 	player.velocity.y = y_velo
 	camera.look_target = player.position
@@ -71,22 +81,33 @@ player_collision :: proc() {
 	player_sphere.y = player.position.y
 	player_sphere.z = player.position.z
 	player_sphere.w = 0.5
-	collided_normals := make([dynamic]Vec3, 0, 4)
-	for t in test_level_tris {
-		collision, pen_normal, pen_depth := sphere_triangle_collision(player_sphere, t, true)
-		if collision {
-			already_resolved_normal: bool
-			for cn in collided_normals {
-				if pen_normal == cn {
-					already_resolved_normal = true
-					break
-				}
-			}
-			if !already_resolved_normal {
-				player.position += pen_normal * pen_depth
-				append(&collided_normals, pen_normal)
-				fmt.printfln("Col Normal: %v\nCol Depth: %v", pen_normal, pen_depth)
-			}
+	// collided_normals := make([dynamic]Vec3, 0, 4)
+	// for t in test_level_tris {
+	// 	collision, pen_normal, pen_depth := sphere_triangle_collision(player_sphere, t, true)
+	// 	if collision {
+	// 		already_resolved_normal: bool
+	// 		for cn in collided_normals {
+	// 			if pen_normal == cn {
+	// 				already_resolved_normal = true
+	// 				break
+	// 			}
+	// 		}
+	// 		if !already_resolved_normal {
+	// 			player.position += pen_normal * pen_depth
+	// 			append(&collided_normals, pen_normal)
+	// 			fmt.printfln("Col Normal: %v\nCol Depth: %v", pen_normal, pen_depth)
+	// 		}
+	// 	}
+	// }
+	player_col: bool
+	for i in 0 ..< test_level.meshCount {
+		// fmt.printfln("Starting Collision With Test Level: %v", i)
+		m := test_level.meshes[i]
+		overlap := gjk(player_sphere, m, &test_simplex)
+		if overlap && test_simplex.count == 4 {
+			player_col = true
 		}
 	}
+	fmt.printfln("Simplex: %v", test_simplex)
+	player.colliding = player_col
 }
