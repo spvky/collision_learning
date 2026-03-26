@@ -30,7 +30,7 @@ init_camera :: proc() {
 		fovy          = 90,
 		position      = {5, 2, -10},
 		up            = {0, 1, 0},
-		target_offset = {0, 5, 5},
+		target_offset = {0, 0, 20},
 		smoothing     = 10,
 	}
 }

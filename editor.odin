@@ -247,7 +247,7 @@ draw_scene :: proc() {
 	// }
 
 	// Draw Origin
-	rl.DrawSphere({0, 0, 0}, 0.25, rl.ORANGE)
+	rl.DrawSphere({0, 0, 0}, 0.25, rl.GREEN)
 
 
 	draw_simplex(&test_simplex)

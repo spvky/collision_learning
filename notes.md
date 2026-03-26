@@ -66,3 +66,12 @@ Unlockable:
 - SMS Dash Nozzle/Super Metroid Speed booster
 
 For vacum effect, scroll the UVS in the wind direction while rotating the cone
+
+Wed 25 Mar 2026 10:11:32 PM EDT
+Mips style creatures:
+- One of the sparks for each course should be a mips style creature that you have to chase down
+- Could do creatures with different attributes (one flies like the vulture in shifting sand land) or a bull that you have to trick into hitting something
+
+100 Coin spark?
+- Could do coins for healing like SM64
+- Coins can also be useful to guide the player

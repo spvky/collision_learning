@@ -188,9 +188,9 @@ ui_test :: proc() {
 	}
 	rl.BeginDrawing()
 	rl.ClearBackground(rl.BLACK)
-	draw_ui()
+	// draw_ui()
 	draw_scene()
-	draw_editor_windows(&ui_context)
+	// draw_editor_windows(&ui_context)
 	rl.EndDrawing()
 }
 

@@ -1,6 +1,7 @@
 package main
 
 import "core:fmt"
+import "core:math"
 import l "core:math/linalg"
 import gm "shared:ghst/math"
 import rl "vendor:raylib"
@@ -15,6 +16,8 @@ Player :: struct {
 	flag_timers: [Player_Flag]f32,
 	colliding:   bool,
 }
+
+T: f32 : 1.618
 
 player: Player
 
@@ -34,6 +37,25 @@ player_update :: proc() {
 	// apply_player_gravity()
 	apply_player_velocity()
 	player_collision()
+}
+
+player_vertices :: proc() -> (verts: [12]Vec3) {
+	pos := player.position
+	verts = [12]Vec3 {
+		({-1, T, 0} * 0.5) + pos,
+		({1, T, 0} * 0.5) + pos,
+		({-1, -T, 0} * 0.5) + pos,
+		({1, -T, 0} * 0.5) + pos,
+		({0, -1, T} * 0.5) + pos,
+		({0, 1, T} * 0.5) + pos,
+		({0, -1, -T} * 0.5) + pos,
+		({0, 1, -T} * 0.5) + pos,
+		({T, 0, -1} * 0.5) + pos,
+		({T, 0, 1} * 0.5) + pos,
+		({-T, 0, -1} * 0.5) + pos,
+		({-T, 0, 1} * 0.5) + pos,
+	}
+	return
 }
 
 move_player :: proc() {
@@ -100,10 +122,12 @@ player_collision :: proc() {
 	// 	}
 	// }
 	player_col: bool
+	player_verts := player_vertices()
 	for i in 0 ..< test_level.meshCount {
 		// fmt.printfln("Starting Collision With Test Level: %v", i)
-		m := test_level.meshes[i]
-		overlap := gjk(player_sphere, m, &test_simplex)
+		mesh_verts := get_mesh_vertices(&test_level.meshes[i])
+
+		overlap := gjk(player_verts[:], mesh_verts, &test_simplex)
 		if overlap && test_simplex.count == 4 {
 			player_col = true
 		}

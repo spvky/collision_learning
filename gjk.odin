@@ -67,11 +67,25 @@ append_to_simplex :: proc(s: ^Simplex, point: Vec3) {
 	s.count += 1
 }
 
-sphere_max_in_direction :: proc(s: Sphere, d: Vec3) -> Vec3 {
-	norm_d := l.normalize0(d)
-	point := s.xyz + (norm_d * s.w)
-	append(&checked_points, point)
-	return point
+vert_list_max_in_direction :: proc(verts: []Vec3, d: Vec3, track := false) -> Vec3 {
+	max_index: int
+	max_dot: f32 = -math.F32_MAX
+	for v, i in verts {
+		dot := l.dot(d, v)
+		if dot > max_dot {
+			max_dot = dot
+			max_index = i
+		}
+	}
+	if track {
+		append(&checked_points, verts[max_index])
+	}
+	return verts[max_index]
+}
+
+// Get the vertices of a mesh
+get_mesh_vertices :: proc(m: ^rl.Mesh) -> []Vec3 {
+	return (cast([^]Vec3)m.vertices)[:m.vertexCount]
 }
 
 mesh_max_in_direction :: proc(m: rl.Mesh, d: Vec3) -> Vec3 {
@@ -90,9 +104,9 @@ mesh_max_in_direction :: proc(m: rl.Mesh, d: Vec3) -> Vec3 {
 	return vert_slice[max_index]
 }
 
-support :: proc(s: Sphere, m: rl.Mesh, d: Vec3) -> Vec3 {
-	a := sphere_max_in_direction(s, d)
-	b := mesh_max_in_direction(m, -d)
+support :: proc(v1, v2: []Vec3, d: Vec3) -> Vec3 {
+	a := vert_list_max_in_direction(v1, d)
+	b := vert_list_max_in_direction(v2, -d, true)
 	return a - b
 }
 
@@ -100,7 +114,7 @@ same_direction :: proc(a, b: Vec3) -> bool {
 	return l.dot(a, b) > 0
 }
 
-gjk :: proc(a: Sphere, b: rl.Mesh, s: ^Simplex) -> (overlap: bool) {
+gjk :: proc(a, b: []Vec3, s: ^Simplex) -> (overlap: bool) {
 	checked_points = make([dynamic]Vec3, 0, 16)
 	reset_simplex(s)
 	d := Vec3{1, 0, 0}
@@ -113,7 +127,7 @@ gjk :: proc(a: Sphere, b: rl.Mesh, s: ^Simplex) -> (overlap: bool) {
 	for iterations < max_iterations {
 		// fmt.printfln("Entering Iteration %v with a direction of %v", iterations, d)
 		append_to_simplex(s, support(a, b, d))
-		if l.dot(s.a, d) <= 0 {
+		if l.dot(s.a, d) <= 0 && s.count > 2 {
 			fmt.printfln("No Collision, Terminatng: %v", s)
 			return
 		}
